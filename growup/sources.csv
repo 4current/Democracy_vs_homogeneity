@@ -1,0 +1,4 @@
+"varname","shortdesc","shrtname","longname","version","shrtcite","longcite","url"
+"countries_gwid","Unique GW ID of country","GW","Gleditsch and Ward Interstate System Membership","v5","Gleditsch and Ward (1999)","Gleditsch, K. S. and M. D. Ward (1999). Interstate System Membership: A Revised List of the Independent States since 1816. International Interactions 25 (4).","http://privatewww.essex.ac.uk/~ksg/statelist.html"
+"countryname","Name of country","GW","Gleditsch and Ward Interstate System Membership","v5","Gleditsch and Ward (1999)","Gleditsch, K. S. and M. D. Ward (1999). Interstate System Membership: A Revised List of the Independent States since 1816. International Interactions 25 (4).","http://privatewww.essex.ac.uk/~ksg/statelist.html"
+"year","Year of observation (Country-Level)","NA","Not Applicable","NA","NA","NA","NA"

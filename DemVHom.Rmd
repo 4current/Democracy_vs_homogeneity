@@ -1,0 +1,311 @@
+---
+title: The Quality of Democratic Institutions as related to the Homogeneity of the
+  Populace
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+A recent challeng by Hossenfelder suggested that US Democracy is of a poor quality. An immediate thought migh be that it is due to the difficulty of instituting percieved fair rules when the makeup of the populace has a wide variety of culrures.
+
+A query to Chat GPT.
+
+To determine the correlation between the quality of democracy and the homogeneity of a nation's population, you can draw from several data sources that provide both quantitative and qualitative metrics for democracy and demographic composition by country. Here are some key sources for each type of data:
+
+### 1. **Democracy Quality**
+   - **The Economist Intelligence Unit's (EIU) Democracy Index**: This index measures the state of democracy in 167 countries, providing scores on electoral processes, civil liberties, political participation, and political culture. You can download the yearly reports to get a breakdown by country.
+   - **Freedom House's Freedom in the World Reports**: These reports rank countries based on political rights and civil liberties. Freedom House provides an annual global overview and individual country scores, useful for analyzing the depth of democracy.
+   - **Polity IV Dataset**: Maintained by the Center for Systemic Peace, this dataset offers political regime data, including measures of democratic authority, which can be used to assess the level of democracy over time.
+   
+### 2. **Population Homogeneity**
+   - **Ethnic Power Relations (EPR) Dataset**: This dataset, maintained by the Swiss Federal Institute of Technology (ETH Zurich), contains detailed information about ethnic groups and their access to political power in countries worldwide.
+   - **World Bank Database**: The World Bank provides demographic data, including ethnicity, language diversity, and other population statistics that can help you assess the degree of homogeneity or heterogeneity in a country.
+   - **CIA World Factbook**: Offers demographic profiles of each country, including ethnic and linguistic breakdowns, useful for gauging population homogeneity.
+   - **Ethnic Fractionalization Index**: This measure quantifies the probability that two randomly selected individuals in a country belong to different ethnic groups. Datasets like Alesina et al.'s "Fractionalization" dataset offer country-level indices.
+
+### 3. **Other Supporting Datasets**
+   - **World Values Survey (WVS)**: This survey includes measures of political values, trust, and cohesion, which can help contextualize how homogeneous populations may impact governance and social cohesion.
+   - **Varieties of Democracy (V-Dem)**: This dataset provides detailed data on different aspects of democracy, ranging from electoral democracy to egalitarian democracy. V-Dem allows you to analyze multiple dimensions of democratic quality by country.
+
+### Suggested Methodology
+   - **Correlation analysis**: You can compare the homogeneity of populations (e.g., using the ethnic fractionalization index) with democracy quality (e.g., using the Democracy Index scores) through regression models or correlation matrices.
+   - **Case studies**: Examine individual countries with both high and low homogeneity (e.g., Japan versus Nigeria) and correlate these with their democracy scores.
+
+By combining data from these sources, you can analyze the relationship between population homogeneity and democratic quality across various countries and regions.
+
+Links
+Here are links to the data sources I mentioned, which you can use to explore the correlation between the quality of democracy and population homogeneity:
+
+### 1. **Democracy Quality**
+   - **The Economist Intelligence Unit's (EIU) Democracy Index**:  
+     Download the annual Democracy Index reports from the EIU here:  
+     [Democracy Index - EIU](https://www.eiu.com/n/campaigns/democracy-index-2023/)
+
+   - **Freedom House's Freedom in the World Reports**:  
+     Access the latest Freedom in the World reports and country scores:  
+     [Freedom in the World - Freedom House](https://freedomhouse.org/report/freedom-world)
+
+   - **Polity IV Dataset**:  
+     The Polity IV dataset can be accessed and downloaded here:  
+     [Polity IV Dataset - Center for Systemic Peace](http://www.systemicpeace.org/polityproject.html)
+
+### 2. **Population Homogeneity**
+   - **Ethnic Power Relations (EPR) Dataset**:  
+     The EPR dataset provides ethnic group data and can be downloaded from ETH Zurich:  
+     [Ethnic Power Relations (EPR) Dataset - ETH Zurich](https://icr.ethz.ch/data/epr/)
+
+   - **World Bank Database**:  
+     World Bank's data on population, ethnicity, and demographics:  
+     [World Bank Data](https://data.worldbank.org/)
+
+   - **CIA World Factbook**:  
+     Explore demographic profiles for all countries via the CIA World Factbook:  
+     [CIA World Factbook](https://www.cia.gov/the-world-factbook/)
+
+   - **Ethnic Fractionalization Index (Alesina et al.)**:  
+     You can access the Alesina Fractionalization dataset through this link:  
+     [Alesina's Fractionalization Index Dataset](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/6JCHHK)
+
+### 3. **Other Supporting Datasets**
+   - **World Values Survey (WVS)**:  
+     You can explore data from the World Values Survey here:  
+     [World Values Survey](https://www.worldvaluessurvey.org/)
+
+   - **Varieties of Democracy (V-Dem)**:  
+     Access the V-Dem project’s democracy data:  
+     [V-Dem Dataset](https://www.v-dem.net/en/)
+
+These sources will give you a wide range of metrics to analyze the correlation between democracy quality and population homogeneity across countries.
+
+```{r, fig.width=12, fig.height=14}
+library(dplyr)
+democracy <- read.csv("Dem_ratings.csv", header = TRUE) 
+democracy <- democracy %>%
+  rename(country = Country)
+dem_breaks <- c(0, 4, 6, 8, 10)       
+democracy$Type <- cut(democracy$Score, 
+                         breaks = dem_breaks,  # Define breaks
+                         labels = c("Authoritarian", "Hybrid", "Flawed", "Full"))  # Label ranges
+
+library(ggplot2)
+
+ggplot(democracy, aes(x = Score, y = country , color = Type)) +
+  geom_point(position = "identity") +
+  geom_text(aes(label = country),  
+            hjust = 0.15,    # Adjust horizontal position
+            nudge_x = 0.25,  # Slight horizontal nudging to avoid overlapping
+            size = 2.5) + # Slight vertical nudging
+  scale_color_manual(values = c("blue", "darkgreen", "red", "brown")) +  # Custom colors for ranges
+  scale_x_continuous(
+    breaks = dem_breaks,  # Specify x-axis grid lines
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.x = element_blank()
+    )
+
+```
+Downloaded ED-2021.csv. Website requests the following attribution:
+
+=== Bormann, Nils-Christian, Lars-Erik Cederman, and Manuel Vogt. 2017. “Language, Religion, and Ethnic Civil War.” Journal of Conflict Resolution 61(4): 744–71.
+
+We wish to derive a measure of homogeneity. There are three factors Religion, Language, Physical differences 
+ChatGPT to the rescue:
+
+A good mathematical measure of homogeneity, given three factors listed as percentages, is **entropy** or its normalized variant. However, a simpler measure tailored to your specific case can be constructed from the variance or concentration of the factors. Here’s one such approach:
+
+### 1. **Variance-based approach:**
+You could compute the **variance** or **standard deviation** of the three percentages. The reasoning is that if one factor dominates (close to 100%), the variance will be high, while if all three factors are around 33%, the variance will be low, representing heterogeneity.
+
+Steps:
+- Let the three factors be \( p_1 \), \( p_2 \), and \( p_3 \), representing percentages (with \( p_1 + p_2 + p_3 = 100\)).
+- Compute the mean: 
+  \[
+  \mu = \frac{p_1 + p_2 + p_3}{3} = \frac{100}{3} \approx 33.33
+  \]
+- Compute the variance:
+  \[
+  \text{Var} = \frac{(p_1 - \mu)^2 + (p_2 - \mu)^2 + (p_3 - \mu)^2}{3}
+  \]
+  A higher variance indicates a more homogeneous distribution (with one dominant factor).
+
+### 2. **Herfindahl-Hirschman Index (HHI):**
+This index, used often in economics to measure market concentration, could also be adapted to your case. The formula is:
+\[
+HHI = p_1^2 + p_2^2 + p_3^2
+\]
+Where \( p_1, p_2, p_3 \) are percentages (but converted to decimal form, i.e., \( p_i/100 \)). If one factor is dominant (e.g., 100% for one and 0% for others), the HHI approaches 1, indicating high homogeneity. If all factors are equally distributed (33%, 33%, 33%), the HHI will be lower.
+
+### 3. **Normalized Entropy:**
+Entropy measures the disorder or randomness in the system, which can also be interpreted as a measure of heterogeneity. The formula for entropy in this case is:
+\[
+S = - (p_1 \log(p_1) + p_2 \log(p_2) + p_3 \log(p_3))
+\]
+where \( p_1, p_2, p_3 \) are in decimal form. If all factors are equal (33%, 33%, 33%), entropy is maximized, indicating maximum heterogeneity. If one factor is dominant, entropy decreases, indicating more homogeneity.
+
+A **normalized entropy** version would divide the entropy by its maximum possible value:
+\[
+S_{\text{norm}} = \frac{S}{\log(3)}
+\]
+
+### Summary:
+- **Variance** or **standard deviation**: A simple measure where higher values represent greater homogeneity (domination by one factor).
+- **HHI**: Measures concentration, with values closer to 1 indicating homogeneity.
+- **Entropy**: Measures randomness, with lower entropy indicating more homogeneity.
+
+Let me know if you'd like further help in calculating these measures for specific values!
+
+If we want to correlate these - first we'll need to Find the conversion in: ISO 639-3 according to the codebook for ED-2021.
+```{r}
+library(dplyr)
+#install.packages("ISOcodes")
+#library(ISOcodes)
+#data("ISO_639_3")
+#head(ISO_639_3)
+
+
+gw <- read.csv("growup/data.csv") 
+gw_cleaned <- gw %>%
+  rename(country = countryname, gwid = countries_gwid) %>%
+  filter(year == max(year)) %>%
+  mutate(country = recode(country,
+                          "Korea, People's Republic of" = "North Korea",
+                          "Korea, Republic of" = "South Korea",
+                          "Myanmar (Burma)" = "Myanmar",
+                          "Congo, Democratic Republic of (Zaire)" = "Democratic Republic of Congo",
+                          "Congo" = "Congo (Brazzaville)",
+                          "Iran (Persia)" = "Iran",
+                          "Yemen (Arab Republic of Yemen)" = "Yemen",
+                          "Belarus (Byelorussia)" = "Belarus",
+                          "Russia (Soviet Union)" = "Russia",
+                          "Vietnam, Democratic Republic of" = "Vietnam",
+                          "Burkina Faso (Upper Volta)" = "Burkina Faso",
+                          "Swaziland (Eswatini)" = "Eswatini",
+                          "Zimbabwe (Rhodesia)" = "Zimbabwe",
+                          "Cambodia (Kampuchea)" = "Cambodia",
+                          "Cote D'Ivoire" = "Côte d’Ivoire",
+                          "German Federal Republic" = "Germany",
+                          "Italy/Sardinia" = "Italy",
+                          "Cape Verde" = "Cabo Verde",
+                          "East Timor" = "Timor-Leste",
+                          "Surinam" = "Suriname",
+                          "Macedonia (FYROM/North Macedonia)" = "North Macedonia",
+                          "Sri Lanka (Ceylon)" = "Sri Lanka",
+                          "Rumania" = "Romania",
+                          "Tanzania (Tanganyika)" = "Tanzania",
+                          "Madagascar (Malagasy)" = "Madagascar",
+                          "Turkey (Ottoman Empire)" = "Turkey",
+                          "Bosnia-Herzegovina" = "Bosnia and Hercegovina"
+                          ))
+
+dem_cleaned <- democracy %>%
+  filter(!(country %in% c("Palestine", "Hong Kong") ))
+
+dem_gw <- left_join(dem_cleaned, gw_cleaned, by = c("country"))
+
+```
+
+As it turns out the Max(year is 2020) I'm going to remove Hong Kong and Palestine.
+
+```{r}
+# Now we are ready to try and merge diversity with democracy
+
+EPR_2021 <- read.csv("EPR-2021.csv")
+dem_div <- dem_gw %>%
+  inner_join(EPR_2021, by = "gwid") %>%
+  filter(year > from & year < to)
+
+# on first glance this looks good - let's check that the sum of the groups looks close to one.
+
+sum_check <- dem_div %>%
+  group_by(country) %>%
+  reframe(total_makeup <- sum(size), group, size, Score, n()) %>%
+  rename(total_makeup = `total_makeup <- sum(size)`, num_groups = `n()`) %>%
+  filter(total_makeup > 0.75) %>%
+  mutate(norm_size = round(size / total_makeup,5))
+```
+Now let's try and add our metrics
+
+```{r}
+
+grpvar <- function(x) {
+  if (length(x) == 1) {
+    0.5
+  } else {
+    var(x)
+  }
+}
+
+norment <- function(s, n) {
+  if (length(s) == 1) {
+    1.0
+  } else {
+    -sum(s*log(s))/log(n)
+  }
+}
+
+div_met_dem <- sum_check %>%
+  group_by(country) %>%
+  reframe(country, norm_size, group, num_groups, gpvar=round(grpvar(norm_size), 5), hhi=round(sum(norm_size^2)/num_groups, 5), norm_ent = round(norment(norm_size, num_groups), 5), Score)
+
+final_data <- div_met_dem %>%
+  group_by(country, gpvar, hhi, norm_ent, Score) %>%
+  summarise(.groups = 'drop')
+
+y <- final_data$Score
+
+```
+
+
+Finally let's draw a scatterplot
+
+```{r}
+
+x <- final_data$gpvar
+model <- lm(formula = y ~ x)
+summary(model)
+
+correlation <- cor(x, y)
+print(correlation)
+
+ggplot(final_data, aes(x = gpvar, y = Score)) +
+  geom_point(color = "blue", size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "red") + 
+  labs(title = "Democracy vs. Homogeneity", x = "Homogeneity (Var) ", y = "Democracy Score")
+
+```
+
+
+```{r}
+
+x <- final_data$hhi
+model <- lm(formula = y ~ x)
+summary(model)
+
+correlation <- cor(x, y)
+print(correlation)
+
+ggplot(final_data, aes(x = hhi, y = Score)) +
+  geom_point(color = "blue", size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "red") + 
+  labs(title = "Democracy vs. Homogeneity", x = "Homogeneity (hhi) ", y = "Democracy Score")
+```
+
+```{r}
+
+x <- final_data$norm_ent
+model <- lm(formula = y ~ x)
+summary(model)
+
+correlation <- cor(x, y)
+print(correlation)
+
+ggplot(final_data, aes(x = norm_ent, y = Score)) +
+  geom_point(color = "blue", size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "red") + 
+  labs(title = "Democracy vs. Homogeneity", x = "Homogeneity (Entropy) ", y = "Democracy Score")
+
+
+```
